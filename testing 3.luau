@@ -1,10 +1,29 @@
---// snakey hates you
+--// Whitelist Configuration
+local Whitelist = {
+    "foghorn", -- Add authorized Roblox usernames here
+    "wokennebula"
+}
 
+--// Verify Whitelist Access
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local isWhitelisted = false
+
+for _, username in ipairs(Whitelist) do
+    if LocalPlayer.Name:lower() == username:lower() then
+        isWhitelisted = true
+        break
+    end
+end
+
+if not isWhitelisted then
+    LocalPlayer:Kick("not on whitelisting, if you execute again without whitelisting you will be banned")
+    return -- Halts execution of the rest of the script entirely
+end
+
+--// Woken Nebula AP Boomer Script Continues Below
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-
-local LocalPlayer = Players.LocalPlayer
 
 local APBreaker = {}
 
@@ -34,6 +53,7 @@ local PRIORITY = Enum.AnimationPriority.Idle
 APBreaker.enabled = false
 APBreaker.randomizerEnabled = false
 APBreaker.autoCycleEnabled = false
+APBreaker.jammerEnabled = false
 APBreaker.currentStop = nil
 APBreaker.charConn = nil
 
@@ -92,13 +112,11 @@ local function runBreaker(character)
                 local track = tracks[math.random(1, #tracks)]
 
                 pcall(function()
-                    -- Dynamic SPEED variable is read directly on execution
                     track:Play(FADE_TIME, 1, SPEED)
                     track:AdjustWeight(WEIGHT, 0)
                 end)
-            else
-                task.wait()
             end
+            task.wait()
         end
     end)
 
@@ -168,7 +186,7 @@ function APBreaker:stop()
 end
 
 --////////////////////////////////////////////////////
---// WOKEN NEBULA AP BOOMER UI
+--// WOKEN NEBULA AP BOOMER UI (PURPLE THEME)
 --////////////////////////////////////////////////////
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -176,16 +194,14 @@ ScreenGui.Name = "APBreakerUI_WokenNebula"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game:GetService("CoreGui")
 
--- Audio setup
 local ClickSound = Instance.new("Sound")
 ClickSound.SoundId = "rbxassetid://9114223161"
 ClickSound.Volume = 0.5
 ClickSound.Parent = ScreenGui
 
--- Main Container (Expanded to 245px height to accommodate Auto-Cycle)
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 220, 0, 245)
-Frame.Position = UDim2.new(0.5, -110, 0.5, -122)
+Frame.Size = UDim2.new(0, 220, 0, 277)
+Frame.Position = UDim2.new(0.5, -110, 0.5, -138)
 Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Frame.BorderSizePixel = 0
 Frame.ClipsDescendants = true
@@ -195,16 +211,14 @@ local FrameCorner = Instance.new("UICorner")
 FrameCorner.CornerRadius = UDim.new(0, 14)
 FrameCorner.Parent = Frame
 
--- Background sky gradient
-local SkyGradient = Instance.new("UIGradient")
-SkyGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(224, 235, 245)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(93, 168, 242))
+local PurpleGradient = Instance.new("UIGradient")
+PurpleGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 35, 65)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 93, 242))
 }
-SkyGradient.Rotation = -90
-SkyGradient.Parent = Frame
+PurpleGradient.Rotation = -90
+PurpleGradient.Parent = Frame
 
--- Outer border stroke
 local UIStroke = Instance.new("UIStroke")
 UIStroke.Thickness = 1.5
 UIStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -212,7 +226,6 @@ UIStroke.Transparency = 0.2
 UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 UIStroke.Parent = Frame
 
---// CENTERED CARTOON SWORD IMAGE BACKDROP
 local SwordImage = Instance.new("ImageLabel")
 SwordImage.Size = UDim2.new(0, 110, 0, 110)
 SwordImage.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -220,41 +233,37 @@ SwordImage.AnchorPoint = Vector2.new(0.5, 0.5)
 SwordImage.BackgroundTransparency = 1
 SwordImage.ScaleType = Enum.ScaleType.Fit
 SwordImage.Rotation = 45
-
 SwordImage.Image = "rbxassetid://0" 
 SwordImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
 SwordImage.ImageTransparency = 0.75
 SwordImage.ZIndex = 1
 SwordImage.Parent = Frame
 
--- Main Content Layout Wrapper
 local MainContent = Instance.new("Frame")
 MainContent.Size = UDim2.new(0, 220, 1, 0)
 MainContent.BackgroundTransparency = 1
 MainContent.ZIndex = 2
 MainContent.Parent = Frame
 
--- Title (WOKEN NEBULA AP BOOMER)
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -75, 0, 35)
 Title.Position = UDim2.new(0, 15, 0, 14)
 Title.BackgroundTransparency = 1
 Title.Text = "WOKEN NEBULA\nAP BOOMER"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextColor3 = Color3.fromRGB(230, 215, 255)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 11
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.ZIndex = 3
 Title.Parent = MainContent
 
--- Single Action Button
 local ActionBtn = Instance.new("TextButton")
 ActionBtn.Size = UDim2.new(0, 130, 0, 30)
 ActionBtn.Position = UDim2.new(0.5, -65, 0, 48)
 ActionBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 ActionBtn.BackgroundTransparency = 0.25
 ActionBtn.Text = "BOOM"
-ActionBtn.TextColor3 = Color3.fromRGB(93, 168, 242)
+ActionBtn.TextColor3 = Color3.fromRGB(140, 93, 242)
 ActionBtn.Font = Enum.Font.GothamBold
 ActionBtn.TextSize = 13
 ActionBtn.AutoButtonColor = false
@@ -287,7 +296,7 @@ PulseTitle.Size = UDim2.new(1, 0, 0, 14)
 PulseTitle.Position = UDim2.new(0, 0, 0, 0)
 PulseTitle.BackgroundTransparency = 1
 PulseTitle.Text = "Pulses/Sec: 4,500"
-PulseTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+PulseTitle.TextColor3 = Color3.fromRGB(240, 230, 255)
 PulseTitle.Font = Enum.Font.GothamBold
 PulseTitle.TextSize = 10
 PulseTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -309,7 +318,7 @@ PulseBarCorner.CornerRadius = UDim.new(1, 0)
 PulseBarCorner.Parent = PulseBar
 
 local PulseFill = Instance.new("Frame")
-PulseFill.Size = UDim2.new(1, 0, 1, 0) -- Full by default (4,500 preset)
+PulseFill.Size = UDim2.new(1, 0, 1, 0)
 PulseFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 PulseFill.ZIndex = 5
 PulseFill.Parent = PulseBar
@@ -331,7 +340,7 @@ PulseKnobCorner.Parent = PulseKnob
 
 local PulseKnobStroke = Instance.new("UIStroke")
 PulseKnobStroke.Thickness = 1.5
-PulseKnobStroke.Color = Color3.fromRGB(93, 168, 242)
+PulseKnobStroke.Color = Color3.fromRGB(140, 93, 242)
 PulseKnobStroke.Parent = PulseKnob
 
 --////////////////////////////////////////////////////
@@ -350,7 +359,7 @@ SpeedTitle.Size = UDim2.new(1, 0, 0, 14)
 SpeedTitle.Position = UDim2.new(0, 0, 0, 0)
 SpeedTitle.BackgroundTransparency = 1
 SpeedTitle.Text = "Speed: 9"
-SpeedTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedTitle.TextColor3 = Color3.fromRGB(240, 230, 255)
 SpeedTitle.Font = Enum.Font.GothamBold
 SpeedTitle.TextSize = 10
 SpeedTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -372,7 +381,7 @@ SpeedBarCorner.CornerRadius = UDim.new(1, 0)
 SpeedBarCorner.Parent = SpeedBar
 
 local SpeedFill = Instance.new("Frame")
-SpeedFill.Size = UDim2.new(1, 0, 1, 0) -- Full by default (9 preset)
+SpeedFill.Size = UDim2.new(1, 0, 1, 0)
 SpeedFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 SpeedFill.ZIndex = 5
 SpeedFill.Parent = SpeedBar
@@ -394,9 +403,8 @@ SpeedKnobCorner.Parent = SpeedKnob
 
 local SpeedKnobStroke = Instance.new("UIStroke")
 SpeedKnobStroke.Thickness = 1.5
-SpeedKnobStroke.Color = Color3.fromRGB(93, 168, 242)
+SpeedKnobStroke.Color = Color3.fromRGB(140, 93, 242)
 SpeedKnobStroke.Parent = SpeedKnob
-
 
 --////////////////////////////////////////////////////
 --// COMPONENT: RANDOMIZER BUTTON
@@ -425,9 +433,8 @@ RandBtnStroke.Color = Color3.fromRGB(255, 255, 255)
 RandBtnStroke.Transparency = 0.6
 RandBtnStroke.Parent = RandBtn
 
-
 --////////////////////////////////////////////////////
---// NEW COMPONENT: AUTO-CYCLE BUTTON
+--// COMPONENT: AUTO-CYCLE BUTTON
 --////////////////////////////////////////////////////
 
 local AutoBtn = Instance.new("TextButton")
@@ -453,8 +460,33 @@ AutoBtnStroke.Color = Color3.fromRGB(255, 255, 255)
 AutoBtnStroke.Transparency = 0.6
 AutoBtnStroke.Parent = AutoBtn
 
+--////////////////////////////////////////////////////
+--// COMPONENT: JAMMER BUTTON
+--////////////////////////////////////////////////////
 
--- Details Action Button (ⓘ)
+local JammerBtn = Instance.new("TextButton")
+JammerBtn.Size = UDim2.new(0, 190, 0, 26)
+JammerBtn.Position = UDim2.new(0.5, -95, 0, 238)
+JammerBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+JammerBtn.BackgroundTransparency = 0.4
+JammerBtn.Text = "ANTI-BOOM JAMMER: OFF"
+JammerBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+JammerBtn.Font = Enum.Font.GothamBold
+JammerBtn.TextSize = 10
+JammerBtn.AutoButtonColor = false
+JammerBtn.ZIndex = 3
+JammerBtn.Parent = MainContent
+
+local JammerBtnCorner = Instance.new("UICorner")
+JammerBtnCorner.CornerRadius = UDim.new(0, 6)
+JammerBtnCorner.Parent = JammerBtn
+
+local JammerBtnStroke = Instance.new("UIStroke")
+JammerBtnStroke.Thickness = 1
+JammerBtnStroke.Color = Color3.fromRGB(255, 255, 255)
+JammerBtnStroke.Transparency = 0.6
+JammerBtnStroke.Parent = JammerBtn
+
 local DetailsBtn = Instance.new("TextButton")
 DetailsBtn.Size = UDim2.new(0, 24, 0, 24)
 DetailsBtn.Position = UDim2.new(0, 160, 0, 12)
@@ -466,7 +498,6 @@ DetailsBtn.TextSize = 15
 DetailsBtn.ZIndex = 3
 DetailsBtn.Parent = MainContent
 
--- Minimize Button (—)
 local MinimizeBtn = Instance.new("TextButton")
 MinimizeBtn.Size = UDim2.new(0, 24, 0, 24)
 MinimizeBtn.Position = UDim2.new(0, 185, 0, 12)
@@ -478,7 +509,6 @@ MinimizeBtn.TextSize = 15
 MinimizeBtn.ZIndex = 3
 MinimizeBtn.Parent = MainContent
 
--- "Hi" Full overlay for minimized button look
 local HiBtn = Instance.new("TextButton")
 HiBtn.Size = UDim2.new(1, 0, 1, 0)
 HiBtn.BackgroundTransparency = 1
@@ -490,12 +520,11 @@ HiBtn.Visible = false
 HiBtn.ZIndex = 6
 HiBtn.Parent = Frame
 
--- Sidebar Popout Information Box
 local PopoutPanel = Instance.new("Frame")
 PopoutPanel.Size = UDim2.new(0, 145, 1, -16)
 PopoutPanel.Position = UDim2.new(0, 225, 0, 8)
 PopoutPanel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-PopoutPanel.BackgroundTransparency = 0.5
+PopoutPanel.BackgroundTransparency = 0.15
 PopoutPanel.BorderSizePixel = 0
 PopoutPanel.ClipsDescendants = true
 PopoutPanel.ZIndex = 3
@@ -516,7 +545,7 @@ PopoutText.Size = UDim2.new(1, -16, 1, -16)
 PopoutText.Position = UDim2.new(0, 8, 0, 8)
 PopoutText.BackgroundTransparency = 1
 PopoutText.Text = "wanna boom tha opps? ap break the whole sava boi."
-PopoutText.TextColor3 = Color3.fromRGB(70, 90, 120)
+PopoutText.TextColor3 = Color3.fromRGB(45, 35, 65)
 PopoutText.Font = Enum.Font.GothamMedium
 PopoutText.TextSize = 11
 PopoutText.TextWrapped = true
@@ -526,29 +555,26 @@ PopoutText.TextTransparency = 1
 PopoutText.ZIndex = 4
 PopoutText.Parent = PopoutPanel
 
--- UI Motion Profiles
 local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local popoutOpen = false
 local minimized = false
 
--- Open/Close Expansion Sidebar
 DetailsBtn.MouseButton1Click:Connect(function()
     if minimized then return end
     ClickSound:Play()
     popoutOpen = not popoutOpen
     
     if popoutOpen then
-        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 380, 0, 245)}):Play()
+        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 380, 0, 277)}):Play()
         TweenService:Create(PopoutText, tweenInfo, {TextTransparency = 0}):Play()
         TweenService:Create(DetailsBtn, tweenInfo, {TextTransparency = 0.4}):Play()
     else
-        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 245)}):Play()
+        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 277)}):Play()
         TweenService:Create(PopoutText, tweenInfo, {TextTransparency = 1}):Play()
         TweenService:Create(DetailsBtn, tweenInfo, {TextTransparency = 0}):Play()
     end
 end)
 
--- Minimize Control Processing
 local function toggleMinimize(state)
     ClickSound:Play()
     minimized = state
@@ -568,7 +594,7 @@ local function toggleMinimize(state)
         MainContent.Visible = true
         SwordImage.Visible = true
         
-        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 245)}):Play()
+        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 277)}):Play()
     end
 end
 
@@ -590,20 +616,20 @@ local function pressActionButton()
         APBreaker:stop()
         
         ActionBtn.Text = "BOOM"
-        PulseKnobStroke.Color = Color3.fromRGB(93, 168, 242)
-        SpeedKnobStroke.Color = Color3.fromRGB(93, 168, 242)
+        PulseKnobStroke.Color = Color3.fromRGB(140, 93, 242)
+        SpeedKnobStroke.Color = Color3.fromRGB(140, 93, 242)
         TweenService:Create(ActionBtn, tweenInfo, {
-            TextColor3 = Color3.fromRGB(93, 168, 242),
+            TextColor3 = Color3.fromRGB(140, 93, 242),
             BackgroundTransparency = 0.25
         }):Play()
     else
         APBreaker:start()
         
         ActionBtn.Text = "STOP"
-        PulseKnobStroke.Color = Color3.fromRGB(235, 110, 150)
-        SpeedKnobStroke.Color = Color3.fromRGB(235, 110, 150)
+        PulseKnobStroke.Color = Color3.fromRGB(235, 110, 210)
+        SpeedKnobStroke.Color = Color3.fromRGB(235, 110, 210)
         TweenService:Create(ActionBtn, tweenInfo, {
-            TextColor3 = Color3.fromRGB(235, 110, 150),
+            TextColor3 = Color3.fromRGB(235, 110, 210),
             BackgroundTransparency = 0.1
         }):Play()
     end
@@ -687,26 +713,7 @@ RandBtn.MouseButton1Click:Connect(function()
 
     if APBreaker.randomizerEnabled then
         RandBtn.Text = "RANDOMIZER: ON"
-        TweenService:Create(RandBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 150), BackgroundTransparency = 0.2}):Play()
-        
-        task.spawn(function()
-            while APBreaker.randomizerEnabled do
-                PULSES_PER_SECOND = math.random(MIN_PULSES, MAX_PULSES)
-                SPEED = math.random(MIN_SPEED, MAX_SPEED)
-
-                PulseTitle.Text = string.format("Pulses/Sec: %s", tostring(PULSES_PER_SECOND):reverse():gsub("(%d%d%d)","%1,"):reverse():gsub("^,",""))
-                local pulsePercent = (PULSES_PER_SECOND - MIN_PULSES) / (MAX_PULSES - MIN_PULSES)
-                TweenService:Create(PulseFill, tweenInfo, {Size = UDim2.new(pulsePercent, 0, 1, 0)}):Play()
-                TweenService:Create(PulseKnob, tweenInfo, {Position = UDim2.new(pulsePercent, -6, 0.5, -6)}):Play()
-
-                SpeedTitle.Text = string.format("Speed: %d", SPEED)
-                local speedPercent = (SPEED - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
-                TweenService:Create(SpeedFill, tweenInfo, {Size = UDim2.new(speedPercent, 0, 1, 0)}):Play()
-                TweenService:Create(SpeedKnob, tweenInfo, {Position = UDim2.new(speedPercent, -6, 0.5, -6)}):Play()
-
-                task.wait(3)
-            end
-        end)
+        TweenService:Create(RandBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
     else
         RandBtn.Text = "RANDOMIZER: OFF"
         TweenService:Create(RandBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.4}):Play()
@@ -718,7 +725,7 @@ RandBtn.MouseLeave:Connect(function() TweenService:Create(RandBtnStroke, tweenIn
 
 
 --////////////////////////////////////////////////////
---// NEW AUTO-CYCLE THREAD & TOGGLE LOGIC
+--// AUTO-CYCLE THREAD & TOGGLE LOGIC
 --////////////////////////////////////////////////////
 
 AutoBtn.MouseButton1Click:Connect(function()
@@ -727,16 +734,14 @@ AutoBtn.MouseButton1Click:Connect(function()
 
     if APBreaker.autoCycleEnabled then
         AutoBtn.Text = "AUTO-CYCLE (0.5s): ON"
-        TweenService:Create(AutoBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 150), BackgroundTransparency = 0.2}):Play()
+        TweenService:Create(AutoBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
         
-        -- Loop turning breaker on and off every 0.5 seconds
         task.spawn(function()
             while APBreaker.autoCycleEnabled do
                 pressActionButton()
                 task.wait(0.5)
             end
             
-            -- Fallback: Ensure everything is clean if stopped mid-cycle
             if APBreaker.enabled then
                 pressActionButton()
             end
@@ -749,6 +754,59 @@ end)
 
 AutoBtn.MouseEnter:Connect(function() TweenService:Create(AutoBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
 AutoBtn.MouseLeave:Connect(function() TweenService:Create(AutoBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
+
+
+--////////////////////////////////////////////////////
+--// ANTI-BOOM JAMMER THREAD & TOGGLE LOGIC
+--////////////////////////////////////////////////////
+
+JammerBtn.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    APBreaker.jammerEnabled = not APBreaker.jammerEnabled
+
+    if APBreaker.jammerEnabled then
+        JammerBtn.Text = "ANTI-BOOM JAMMER: ON"
+        TweenService:Create(JammerBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
+        
+        task.spawn(function()
+            while APBreaker.jammerEnabled do
+                local char = LocalPlayer.Character
+                if char then
+                    local hum = char:FindFirstChildOfClass("Humanoid")
+                    if hum then
+                        local animator = hum:FindFirstChildOfClass("Animator")
+                        if animator then
+                            for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+                                local isOwnTrack = false
+                                if APBreaker.enabled and APBreaker.currentStop then
+                                    for _, id in ipairs(ANIMS) do
+                                        if track.Animation and track.Animation.AnimationId == id then
+                                            isOwnTrack = true
+                                            break
+                                        end
+                                    end
+                                end
+                                
+                                if not isOwnTrack then
+                                    pcall(function()
+                                        track:Stop(0)
+                                    end)
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait()
+            end
+        end)
+    else
+        JammerBtn.Text = "ANTI-BOOM JAMMER: OFF"
+        TweenService:Create(JammerBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.4}):Play()
+    end
+end)
+
+JammerBtn.MouseEnter:Connect(function() TweenService:Create(JammerBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
+JammerBtn.MouseLeave:Connect(function() TweenService:Create(JammerBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
 
 
 --////////////////////////////////////////////////////
