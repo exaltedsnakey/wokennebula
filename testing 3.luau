@@ -2,14 +2,6 @@
 local Whitelist = {
     "foghorn", -- Add authorized Roblox usernames here
     "wokennebula"
-    "MeowEviIAngel"
-    ""
-    ""
-    ""
-    ""
-    ""
-    ""
-
 }
 
 --// Verify Whitelist Access
@@ -61,7 +53,6 @@ local PRIORITY = Enum.AnimationPriority.Idle
 APBreaker.enabled = false
 APBreaker.randomizerEnabled = false
 APBreaker.autoCycleEnabled = false
-APBreaker.jammerEnabled = false
 APBreaker.currentStop = nil
 APBreaker.charConn = nil
 
@@ -468,33 +459,6 @@ AutoBtnStroke.Color = Color3.fromRGB(255, 255, 255)
 AutoBtnStroke.Transparency = 0.6
 AutoBtnStroke.Parent = AutoBtn
 
---////////////////////////////////////////////////////
---// COMPONENT: JAMMER BUTTON
---////////////////////////////////////////////////////
-
-local JammerBtn = Instance.new("TextButton")
-JammerBtn.Size = UDim2.new(0, 190, 0, 26)
-JammerBtn.Position = UDim2.new(0.5, -95, 0, 238)
-JammerBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-JammerBtn.BackgroundTransparency = 0.4
-JammerBtn.Text = "ANTI-BOOM JAMMER: OFF"
-JammerBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-JammerBtn.Font = Enum.Font.GothamBold
-JammerBtn.TextSize = 10
-JammerBtn.AutoButtonColor = false
-JammerBtn.ZIndex = 3
-JammerBtn.Parent = MainContent
-
-local JammerBtnCorner = Instance.new("UICorner")
-JammerBtnCorner.CornerRadius = UDim.new(0, 6)
-JammerBtnCorner.Parent = JammerBtn
-
-local JammerBtnStroke = Instance.new("UIStroke")
-JammerBtnStroke.Thickness = 1
-JammerBtnStroke.Color = Color3.fromRGB(255, 255, 255)
-JammerBtnStroke.Transparency = 0.6
-JammerBtnStroke.Parent = JammerBtn
-
 local DetailsBtn = Instance.new("TextButton")
 DetailsBtn.Size = UDim2.new(0, 24, 0, 24)
 DetailsBtn.Position = UDim2.new(0, 160, 0, 12)
@@ -762,59 +726,6 @@ end)
 
 AutoBtn.MouseEnter:Connect(function() TweenService:Create(AutoBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
 AutoBtn.MouseLeave:Connect(function() TweenService:Create(AutoBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
-
-
---////////////////////////////////////////////////////
---// ANTI-BOOM JAMMER THREAD & TOGGLE LOGIC
---////////////////////////////////////////////////////
-
-JammerBtn.MouseButton1Click:Connect(function()
-    ClickSound:Play()
-    APBreaker.jammerEnabled = not APBreaker.jammerEnabled
-
-    if APBreaker.jammerEnabled then
-        JammerBtn.Text = "ANTI-BOOM JAMMER: ON"
-        TweenService:Create(JammerBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
-        
-        task.spawn(function()
-            while APBreaker.jammerEnabled do
-                local char = LocalPlayer.Character
-                if char then
-                    local hum = char:FindFirstChildOfClass("Humanoid")
-                    if hum then
-                        local animator = hum:FindFirstChildOfClass("Animator")
-                        if animator then
-                            for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-                                local isOwnTrack = false
-                                if APBreaker.enabled and APBreaker.currentStop then
-                                    for _, id in ipairs(ANIMS) do
-                                        if track.Animation and track.Animation.AnimationId == id then
-                                            isOwnTrack = true
-                                            break
-                                        end
-                                    end
-                                end
-                                
-                                if not isOwnTrack then
-                                    pcall(function()
-                                        track:Stop(0)
-                                    end)
-                                end
-                            end
-                        end
-                    end
-                end
-                task.wait()
-            end
-        end)
-    else
-        JammerBtn.Text = "ANTI-BOOM JAMMER: OFF"
-        TweenService:Create(JammerBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.4}):Play()
-    end
-end)
-
-JammerBtn.MouseEnter:Connect(function() TweenService:Create(JammerBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
-JammerBtn.MouseLeave:Connect(function() TweenService:Create(JammerBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
 
 
 --////////////////////////////////////////////////////
