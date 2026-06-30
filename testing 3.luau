@@ -2,7 +2,6 @@
 local Whitelist = {
     "foghorn", -- Add authorized Roblox usernames here
     "wokennebula"
-    "MeowEviIAngel"
 }
 
 --// Verify Whitelist Access
