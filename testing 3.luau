@@ -107,6 +107,9 @@ local MIN_SPEED = 1
 local MAX_SPEED = 9
 
 local WEIGHT = 0.05
+local MIN_WEIGHT = 0.01
+local MAX_WEIGHT = 1.00
+
 local FADE_TIME = 0
 local PRIORITY = Enum.AnimationPriority.Idle
 
@@ -114,6 +117,7 @@ local PRIORITY = Enum.AnimationPriority.Idle
 APBreaker.enabled = false
 APBreaker.randomizerEnabled = false
 APBreaker.autoCycleEnabled = false
+APBreaker.rapidWeightEnabled = false
 APBreaker.currentStop = nil
 APBreaker.charConn = nil
 
@@ -260,8 +264,8 @@ ClickSound.Volume = 0.5
 ClickSound.Parent = ScreenGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 220, 0, 277)
-Frame.Position = UDim2.new(0.5, -110, 0.5, -138)
+Frame.Size = UDim2.new(0, 220, 0, 360) -- Taller UI to fit new elements
+Frame.Position = UDim2.new(0.5, -110, 0.5, -180)
 Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Frame.BorderSizePixel = 0
 Frame.ClipsDescendants = true
@@ -355,7 +359,7 @@ local PulseTitle = Instance.new("TextLabel")
 PulseTitle.Size = UDim2.new(1, 0, 0, 14)
 PulseTitle.Position = UDim2.new(0, 0, 0, 0)
 PulseTitle.BackgroundTransparency = 1
-PulseTitle.Text = "Pulses/Sec: 4,500"
+PulseTitle.Text = "Pulses/Sec: 5,000"
 PulseTitle.TextColor3 = Color3.fromRGB(240, 230, 255)
 PulseTitle.Font = Enum.Font.GothamBold
 PulseTitle.TextSize = 10
@@ -378,7 +382,7 @@ PulseBarCorner.CornerRadius = UDim.new(1, 0)
 PulseBarCorner.Parent = PulseBar
 
 local PulseFill = Instance.new("Frame")
-PulseFill.Size = UDim2.new(1, 0, 1, 0)
+PulseFill.Size = UDim2.new(0.666, 0, 1, 0) -- Set to reflect default 5000/7000 ratio
 PulseFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 PulseFill.ZIndex = 5
 PulseFill.Parent = PulseBar
@@ -389,7 +393,7 @@ PulseFillCorner.Parent = PulseFill
 
 local PulseKnob = Instance.new("Frame")
 PulseKnob.Size = UDim2.new(0, 12, 0, 12)
-PulseKnob.Position = UDim2.new(1, -6, 0.5, -6)
+PulseKnob.Position = UDim2.new(0.666, -6, 0.5, -6)
 PulseKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 PulseKnob.ZIndex = 6
 PulseKnob.Parent = PulseBar
@@ -418,7 +422,7 @@ local SpeedTitle = Instance.new("TextLabel")
 SpeedTitle.Size = UDim2.new(1, 0, 0, 14)
 SpeedTitle.Position = UDim2.new(0, 0, 0, 0)
 SpeedTitle.BackgroundTransparency = 1
-SpeedTitle.Text = "Speed: 9"
+SpeedTitle.Text = "Speed: 7"
 SpeedTitle.TextColor3 = Color3.fromRGB(240, 230, 255)
 SpeedTitle.Font = Enum.Font.GothamBold
 SpeedTitle.TextSize = 10
@@ -441,7 +445,7 @@ SpeedBarCorner.CornerRadius = UDim.new(1, 0)
 SpeedBarCorner.Parent = SpeedBar
 
 local SpeedFill = Instance.new("Frame")
-SpeedFill.Size = UDim2.new(1, 0, 1, 0)
+SpeedFill.Size = UDim2.new(0.75, 0, 1, 0) -- Set to reflect default 7/9 ratio
 SpeedFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 SpeedFill.ZIndex = 5
 SpeedFill.Parent = SpeedBar
@@ -452,7 +456,7 @@ SpeedFillCorner.Parent = SpeedFill
 
 local SpeedKnob = Instance.new("Frame")
 SpeedKnob.Size = UDim2.new(0, 12, 0, 12)
-SpeedKnob.Position = UDim2.new(1, -6, 0.5, -6)
+SpeedKnob.Position = UDim2.new(0.75, -6, 0.5, -6)
 SpeedKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 SpeedKnob.ZIndex = 6
 SpeedKnob.Parent = SpeedBar
@@ -467,12 +471,75 @@ SpeedKnobStroke.Color = Color3.fromRGB(140, 93, 242)
 SpeedKnobStroke.Parent = SpeedKnob
 
 --////////////////////////////////////////////////////
+--// SLIDER 3: WEIGHT COMPONENT
+--////////////////////////////////////////////////////
+
+local WeightSliderFrame = Instance.new("Frame")
+WeightSliderFrame.Size = UDim2.new(0, 190, 0, 36)
+WeightSliderFrame.Position = UDim2.new(0.5, -95, 0, 174)
+WeightSliderFrame.BackgroundTransparency = 1
+WeightSliderFrame.ZIndex = 3
+WeightSliderFrame.Parent = MainContent
+
+local WeightTitle = Instance.new("TextLabel")
+WeightTitle.Size = UDim2.new(1, 0, 0, 14)
+WeightTitle.Position = UDim2.new(0, 0, 0, 0)
+WeightTitle.BackgroundTransparency = 1
+WeightTitle.Text = "Weight: 0.05"
+WeightTitle.TextColor3 = Color3.fromRGB(240, 230, 255)
+WeightTitle.Font = Enum.Font.GothamBold
+WeightTitle.TextSize = 10
+WeightTitle.TextXAlignment = Enum.TextXAlignment.Left
+WeightTitle.ZIndex = 4
+WeightTitle.Parent = WeightSliderFrame
+
+local WeightBar = Instance.new("TextButton")
+WeightBar.Size = UDim2.new(1, 0, 0, 6)
+WeightBar.Position = UDim2.new(0, 0, 0, 18)
+WeightBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WeightBar.BackgroundTransparency = 0.5
+WeightBar.Text = ""
+WeightBar.AutoButtonColor = false
+WeightBar.ZIndex = 4
+WeightBar.Parent = WeightSliderFrame
+
+local WeightBarCorner = Instance.new("UICorner")
+WeightBarCorner.CornerRadius = UDim.new(1, 0)
+WeightBarCorner.Parent = WeightBar
+
+local WeightFill = Instance.new("Frame")
+WeightFill.Size = UDim2.new(0.05, 0, 1, 0)
+WeightFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WeightFill.ZIndex = 5
+WeightFill.Parent = WeightBar
+
+local WeightFillCorner = Instance.new("UICorner")
+WeightFillCorner.CornerRadius = UDim.new(1, 0)
+WeightFillCorner.Parent = WeightFill
+
+local WeightKnob = Instance.new("Frame")
+WeightKnob.Size = UDim2.new(0, 12, 0, 12)
+WeightKnob.Position = UDim2.new(0.05, -6, 0.5, -6)
+WeightKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WeightKnob.ZIndex = 6
+WeightKnob.Parent = WeightBar
+
+local WeightKnobCorner = Instance.new("UICorner")
+WeightKnobCorner.CornerRadius = UDim.new(1, 0)
+WeightKnobCorner.Parent = WeightKnob
+
+local WeightKnobStroke = Instance.new("UIStroke")
+WeightKnobStroke.Thickness = 1.5
+WeightKnobStroke.Color = Color3.fromRGB(140, 93, 242)
+WeightKnobStroke.Parent = WeightKnob
+
+--////////////////////////////////////////////////////
 --// COMPONENT: RANDOMIZER BUTTON
 --////////////////////////////////////////////////////
 
 local RandBtn = Instance.new("TextButton")
 RandBtn.Size = UDim2.new(0, 190, 0, 26)
-RandBtn.Position = UDim2.new(0.5, -95, 0, 174)
+RandBtn.Position = UDim2.new(0.5, -95, 0, 216)
 RandBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 RandBtn.BackgroundTransparency = 0.4
 RandBtn.Text = "RANDOMIZER: OFF"
@@ -499,7 +566,7 @@ RandBtnStroke.Parent = RandBtn
 
 local AutoBtn = Instance.new("TextButton")
 AutoBtn.Size = UDim2.new(0, 190, 0, 26)
-AutoBtn.Position = UDim2.new(0.5, -95, 0, 206)
+AutoBtn.Position = UDim2.new(0.5, -95, 0, 248)
 AutoBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 AutoBtn.BackgroundTransparency = 0.4
 AutoBtn.Text = "AUTO-CYCLE (0.5s): OFF"
@@ -519,6 +586,37 @@ AutoBtnStroke.Thickness = 1
 AutoBtnStroke.Color = Color3.fromRGB(255, 255, 255)
 AutoBtnStroke.Transparency = 0.6
 AutoBtnStroke.Parent = AutoBtn
+
+--////////////////////////////////////////////////////
+--// COMPONENT: RAPID WEIGHT BUTTON
+--////////////////////////////////////////////////////
+
+local RapidWeightBtn = Instance.new("TextButton")
+RapidWeightBtn.Size = UDim2.new(0, 190, 0, 26)
+RapidWeightBtn.Position = UDim2.new(0.5, -95, 0, 280)
+RapidWeightBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+RapidWeightBtn.BackgroundTransparency = 0.4
+RapidWeightBtn.Text = "RAPID WEIGHT: OFF"
+RapidWeightBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+RapidWeightBtn.Font = Enum.Font.GothamBold
+RapidWeightBtn.TextSize = 10
+RapidWeightBtn.AutoButtonColor = false
+RapidWeightBtn.ZIndex = 3
+RapidWeightBtn.Parent = MainContent
+
+local RapidWeightBtnCorner = Instance.new("UICorner")
+RapidWeightBtnCorner.CornerRadius = UDim.new(0, 6)
+RapidWeightBtnCorner.Parent = RapidWeightBtn
+
+local RapidWeightBtnStroke = Instance.new("UIStroke")
+RapidWeightBtnStroke.Thickness = 1
+RapidWeightBtnStroke.Color = Color3.fromRGB(255, 255, 255)
+RapidWeightBtnStroke.Transparency = 0.6
+RapidWeightBtnStroke.Parent = RapidWeightBtn
+
+--////////////////////////////////////////////////////
+--// UTILITY DETAILS & MINIMIZE INTERACTION
+--////////////////////////////////////////////////////
 
 local DetailsBtn = Instance.new("TextButton")
 DetailsBtn.Size = UDim2.new(0, 24, 0, 24)
@@ -598,11 +696,11 @@ DetailsBtn.MouseButton1Click:Connect(function()
     popoutOpen = not popoutOpen
     
     if popoutOpen then
-        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 380, 0, 277)}):Play()
+        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 380, 0, 360)}):Play()
         TweenService:Create(PopoutText, tweenInfo, {TextTransparency = 0}):Play()
         TweenService:Create(DetailsBtn, tweenInfo, {TextTransparency = 0.4}):Play()
     else
-        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 277)}):Play()
+        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 360)}):Play()
         TweenService:Create(PopoutText, tweenInfo, {TextTransparency = 1}):Play()
         TweenService:Create(DetailsBtn, tweenInfo, {TextTransparency = 0}):Play()
     end
@@ -627,7 +725,7 @@ local function toggleMinimize(state)
         MainContent.Visible = true
         SwordImage.Visible = true
         
-        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 277)}):Play()
+        TweenService:Create(Frame, tweenInfo, {Size = UDim2.new(0, 220, 0, 360)}):Play()
     end
 end
 
@@ -651,6 +749,7 @@ local function pressActionButton()
         ActionBtn.Text = "BOOM"
         PulseKnobStroke.Color = Color3.fromRGB(140, 93, 242)
         SpeedKnobStroke.Color = Color3.fromRGB(140, 93, 242)
+        WeightKnobStroke.Color = Color3.fromRGB(140, 93, 242)
         TweenService:Create(ActionBtn, tweenInfo, {
             TextColor3 = Color3.fromRGB(140, 93, 242),
             BackgroundTransparency = 0.25
@@ -661,6 +760,7 @@ local function pressActionButton()
         ActionBtn.Text = "STOP"
         PulseKnobStroke.Color = Color3.fromRGB(235, 110, 210)
         SpeedKnobStroke.Color = Color3.fromRGB(235, 110, 210)
+        WeightKnobStroke.Color = Color3.fromRGB(235, 110, 210)
         TweenService:Create(ActionBtn, tweenInfo, {
             TextColor3 = Color3.fromRGB(235, 110, 210),
             BackgroundTransparency = 0.1
@@ -685,7 +785,9 @@ local activeSlider = nil
 local function updateSliders(input)
     if not activeSlider then return end
     
-    local bar = activeSlider == "Pulse" and PulseBar or SpeedBar
+    local bar = (activeSlider == "Pulse" and PulseBar) or (activeSlider == "Speed" and SpeedBar) or (activeSlider == "Weight" and WeightBar)
+    if not bar then return end
+    
     local barAbsoluteSize = bar.AbsoluteSize.X
     local barAbsolutePos = bar.AbsolutePosition.X
     local mouseX = input.Position.X
@@ -707,6 +809,15 @@ local function updateSliders(input)
         SpeedTitle.Text = string.format("Speed: %d", SPEED)
         SpeedFill.Size = UDim2.new(percentage, 0, 1, 0)
         SpeedKnob.Position = UDim2.new(percentage, -6, 0.5, -6)
+        
+    elseif activeSlider == "Weight" then
+        if APBreaker.rapidWeightEnabled then return end -- Inhibit sliding manually if Rapid is active
+        local rawValue = MIN_WEIGHT + (percentage * (MAX_WEIGHT - MIN_WEIGHT))
+        WEIGHT = rawValue
+        
+        WeightTitle.Text = string.format("Weight: %.2f", WEIGHT)
+        WeightFill.Size = UDim2.new(percentage, 0, 1, 0)
+        WeightKnob.Position = UDim2.new(percentage, -6, 0.5, -6)
     end
 end
 
@@ -720,6 +831,13 @@ end)
 SpeedBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         activeSlider = "Speed"
+        updateSliders(input)
+    end
+end)
+
+WeightBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        activeSlider = "Weight"
         updateSliders(input)
     end
 end)
@@ -787,6 +905,43 @@ end)
 
 AutoBtn.MouseEnter:Connect(function() TweenService:Create(AutoBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
 AutoBtn.MouseLeave:Connect(function() TweenService:Create(AutoBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
+
+
+--////////////////////////////////////////////////////
+--// RAPID WEIGHT THREAD & TOGGLE LOGIC
+--////////////////////////////////////////////////////
+
+RapidWeightBtn.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    APBreaker.rapidWeightEnabled = not APBreaker.rapidWeightEnabled
+
+    if APBreaker.rapidWeightEnabled then
+        RapidWeightBtn.Text = "RAPID WEIGHT: ON"
+        TweenService:Create(RapidWeightBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
+    else
+        RapidWeightBtn.Text = "RAPID WEIGHT: OFF"
+        TweenService:Create(RapidWeightBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.4}):Play()
+    end
+end)
+
+RapidWeightBtn.MouseEnter:Connect(function() TweenService:Create(RapidWeightBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
+RapidWeightBtn.MouseLeave:Connect(function() TweenService:Create(RapidWeightBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
+
+-- Independent Loop driving the Rapid Weight variations smoothly
+task.spawn(function()
+    while true do
+        if APBreaker.rapidWeightEnabled then
+            local randomPct = math.random(0, 1000) / 1000
+            WEIGHT = MIN_WEIGHT + (randomPct * (MAX_WEIGHT - MIN_WEIGHT))
+            
+            -- Keep layout dynamically updated visually even when scrolling randomized values
+            WeightTitle.Text = string.format("Weight: %.2f", WEIGHT)
+            WeightFill.Size = UDim2.new(randomPct, 0, 1, 0)
+            WeightKnob.Position = UDim2.new(randomPct, -6, 0.5, -6)
+        end
+        task.wait(0.1)
+    end
+end)
 
 
 --////////////////////////////////////////////////////
