@@ -2,7 +2,7 @@
 local Whitelist = {
     "foghorn", 
     "wokennebula",
-    "MeowEviIAngel"
+    "sparta4487"
 }
 
 --// Dependencies
