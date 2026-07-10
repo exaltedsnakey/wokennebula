@@ -1185,10 +1185,13 @@ task.spawn(function()
 end)
 
 --==============================================================================
--- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (FIXED)
+-- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (UPDATED)
 --==============================================================================
+-- New state to track if the keybind feature itself is enabled/allowed to run
+activeStates.RhythmKeybindEnabled = false 
+
 local function updateRhythmUIButtonState()
-    if activeStates.RhythmSpoofer then
+    if activeStates.RhythmKeybindEnabled then
         RhythmBtn.Text = "RHYTHM SPOOFER [G]: ON"
         TweenService:Create(RhythmBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
     else
@@ -1198,16 +1201,15 @@ local function updateRhythmUIButtonState()
 end
 
 local function toggleRhythmSpooferAction()
-    if activeStates.RhythmSpoofer then
+    if activeStates.RhythmKeybindEnabled then
+        activeStates.RhythmKeybindEnabled = false
         activeStates.RhythmSpoofer = false
         updateRhythmUIButtonState()
         stopRhythm()
     else
-        -- FIXED: Bypassed the canUseRhythm() restriction. 
-        -- If the game updated, this function was likely forcing a 'false' return.
-        activeStates.RhythmSpoofer = true
+        activeStates.RhythmKeybindEnabled = true
         updateRhythmUIButtonState()
-        startRhythm()
+        -- Note: The Heartbeat loop below will now handle starting/managing the rhythm safely
     end
 end
 
@@ -1231,10 +1233,17 @@ UIS.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- Background loop checking tracking requirements
--- FIXED: Added a check so it won't force stopRhythm if the spoofer is active.
+-- UPDATED: Controls execution dynamically based on whether your [G] keybind is toggled ON.
 RunService.Heartbeat:Connect(function()
-    if rhythmActive and not activeStates.RhythmSpoofer then
-        if not isCrouching() then
+    if activeStates.RhythmKeybindEnabled then
+        -- If the keybind is active, force the spoofer state to stay true and keep it running
+        activeStates.RhythmSpoofer = true
+        if not rhythmActive then
+            startRhythm()
+        end
+    else
+        -- If the keybind is toggled off, make sure the rhythm stops safely
+        if rhythmActive then
             stopRhythm()
         end
     end
@@ -1243,8 +1252,7 @@ end)
 -- FIXED: Removed or bypassed the auto-disable condition that forced 
 -- activeStates.RhythmSpoofer to false when the game thinks you aren't crouching.
 RunService.PostSimulation:Connect(function()
-    -- The update likely forced 'isCrouching()' to return false, triggering this block.
-    -- We keep this event listener empty or remove the force-disable logic to prevent patches from turning it off.
+    -- Kept empty to prevent patches from forcing it off.
 end)
 
 LocalPlayer.CharacterAdded:Connect(function()
