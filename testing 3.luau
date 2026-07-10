@@ -1185,7 +1185,7 @@ task.spawn(function()
 end)
 
 --==============================================================================
--- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS
+-- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (FIXED)
 --==============================================================================
 local function updateRhythmUIButtonState()
     if activeStates.RhythmSpoofer then
@@ -1203,6 +1203,8 @@ local function toggleRhythmSpooferAction()
         updateRhythmUIButtonState()
         stopRhythm()
     else
+        -- If the update added a restriction inside canUseRhythm(), 
+        -- you may need to look into bypassing that function next.
         if canUseRhythm() then
             activeStates.RhythmSpoofer = true
             updateRhythmUIButtonState()
@@ -1231,19 +1233,20 @@ UIS.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- Background loop checking tracking requirements
+-- FIXED: Added a check so it won't force stopRhythm if the spoofer is active.
 RunService.Heartbeat:Connect(function()
-    if rhythmActive then
-        if not activeStates.RhythmSpoofer or not isCrouching() then
+    if rhythmActive and not activeStates.RhythmSpoofer then
+        if not isCrouching() then
             stopRhythm()
         end
     end
 end)
 
+-- FIXED: Removed or bypassed the auto-disable condition that forced 
+-- activeStates.RhythmSpoofer to false when the game thinks you aren't crouching.
 RunService.PostSimulation:Connect(function()
-    if activeStates.RhythmSpoofer and not isCrouching() then
-        activeStates.RhythmSpoofer = false
-        updateRhythmUIButtonState()
-    end
+    -- The update likely forced 'isCrouching()' to return false, triggering this block.
+    -- We keep this event listener empty or remove the force-disable logic to prevent patches from turning it off.
 end)
 
 LocalPlayer.CharacterAdded:Connect(function()
