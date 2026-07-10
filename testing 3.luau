@@ -1185,7 +1185,7 @@ task.spawn(function()
 end)
 
 --==============================================================================
--- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (FIXED)
+-- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS
 --==============================================================================
 local function updateRhythmUIButtonState()
     if activeStates.RhythmSpoofer then
@@ -1203,13 +1203,11 @@ local function toggleRhythmSpooferAction()
         updateRhythmUIButtonState()
         stopRhythm()
     else
-        -- If the update added a restriction inside canUseRhythm(), 
-        -- you may need to look into bypassing that function next.
-        if canUseRhythm() then
-            activeStates.RhythmSpoofer = true
-            updateRhythmUIButtonState()
-            startRhythm()
-        end
+        -- FIXED: Bypassed the canUseRhythm() restriction. 
+        -- If the game updated, this function was likely forcing a 'false' return.
+        activeStates.RhythmSpoofer = true
+        updateRhythmUIButtonState()
+        startRhythm()
     end
 end
 
