@@ -1185,7 +1185,7 @@ task.spawn(function()
 end)
 
 --==============================================================================
--- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS
+-- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (FIXED)
 --==============================================================================
 local function updateRhythmUIButtonState()
     if activeStates.RhythmSpoofer then
