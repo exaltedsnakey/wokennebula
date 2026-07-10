@@ -1185,72 +1185,77 @@ task.spawn(function()
 end)
 
 --==============================================================================
--- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (UPDATED)
+-- PART 4: INTEGRATED RHYTHM SPOOFER INTERACTIONS (KEYBIND TOGGLE SYSTEM)
 --==============================================================================
--- New state to track if the keybind feature itself is enabled/allowed to run
-activeStates.RhythmKeybindEnabled = false 
+-- Master switch: Controls whether the 'G' keybind is allowed to do anything
+activeStates.KeybindsAllowed = false 
 
 local function updateRhythmUIButtonState()
-    if activeStates.RhythmKeybindEnabled then
-        RhythmBtn.Text = "RHYTHM SPOOFER [G]: ON"
+    if activeStates.KeybindsAllowed then
+        RhythmBtn.Text = "KEYBINDS: ENABLED [G READY]"
         TweenService:Create(RhythmBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(235, 110, 210), BackgroundTransparency = 0.2}):Play()
     else
-        RhythmBtn.Text = "RHYTHM SPOOFER [G]: OFF"
+        RhythmBtn.Text = "KEYBINDS: DISABLED [G LOCKED]"
         TweenService:Create(RhythmBtn, tweenInfo, {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.4}):Play()
     end
 end
 
-local function toggleRhythmSpooferAction()
-    if activeStates.RhythmKeybindEnabled then
-        activeStates.RhythmKeybindEnabled = false
+-- Toggles whether the keybind system is active or completely dead
+local function toggleKeybindMasterSwitch()
+    activeStates.KeybindsAllowed = not activeStates.KeybindsAllowed
+    updateRhythmUIButtonState()
+    
+    -- If we turn keybinds off, automatically safety-shut down the spoofer
+    if not activeStates.KeybindsAllowed and activeStates.RhythmSpoofer then
         activeStates.RhythmSpoofer = false
-        updateRhythmUIButtonState()
         stopRhythm()
-    else
-        activeStates.RhythmKeybindEnabled = true
-        updateRhythmUIButtonState()
-        -- Note: The Heartbeat loop below will now handle starting/managing the rhythm safely
     end
 end
 
+-- Toggles the actual spoofer action (Only allowed if KeybindsAllowed is true)
+local function toggleRhythmSpooferAction()
+    if not activeStates.KeybindsAllowed then return end -- Block execution if master switch is off
+    
+    if activeStates.RhythmSpoofer then
+        activeStates.RhythmSpoofer = false
+        stopRhythm()
+    else
+        activeStates.RhythmSpoofer = true
+        startRhythm()
+    end
+end
+
+-- Clicking the button turns the keybind functionality ON or OFF
 RhythmBtn.MouseButton1Click:Connect(function()
     ClickSound:Play()
-    toggleRhythmSpooferAction()
+    toggleKeybindMasterSwitch()
 end)
 
 RhythmBtn.MouseEnter:Connect(function() TweenService:Create(RhythmBtnStroke, tweenInfo, {Transparency = 0.2}):Play() end)
 RhythmBtn.MouseLeave:Connect(function() TweenService:Create(RhythmBtnStroke, tweenInfo, {Transparency = 0.6}):Play() end)
 
--- Global Keybind listener for F2 Visibility Toggle and G Spoofer Toggle
+-- Global Keybind listener
 UIS.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end 
     
     if input.KeyCode == Enum.KeyCode.F2 then
         ScreenGui.Enabled = not ScreenGui.Enabled
     elseif input.KeyCode == Enum.KeyCode.G then
+        -- This will now do absolutely nothing unless you turned the UI button ON first!
         toggleRhythmSpooferAction()
     end
 end)
 
 -- Background loop checking tracking requirements
--- UPDATED: Controls execution dynamically based on whether your [G] keybind is toggled ON.
 RunService.Heartbeat:Connect(function()
-    if activeStates.RhythmKeybindEnabled then
-        -- If the keybind is active, force the spoofer state to stay true and keep it running
-        activeStates.RhythmSpoofer = true
-        if not rhythmActive then
-            startRhythm()
-        end
-    else
-        -- If the keybind is toggled off, make sure the rhythm stops safely
-        if rhythmActive then
+    if rhythmActive and not activeStates.RhythmSpoofer then
+        if not isCrouching() then
             stopRhythm()
         end
     end
 end)
 
--- FIXED: Removed or bypassed the auto-disable condition that forced 
--- activeStates.RhythmSpoofer to false when the game thinks you aren't crouching.
+-- Prevent auto-disable patches from overriding states
 RunService.PostSimulation:Connect(function()
     -- Kept empty to prevent patches from forcing it off.
 end)
